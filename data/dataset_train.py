@@ -81,21 +81,30 @@ class read_data():
         self.opt = opt
         self.root = opt.dataroot
 
-        real_img_list = [os.path.join(self.root, '0_real', train_file) for train_file in 
-                        os.listdir(os.path.join(self.root, '0_real'))]
+        no_tumor_img_list = [os.path.join(self.root, 'no_tumor', train_file) for train_file in 
+                        os.listdir(os.path.join(self.root, 'no_tumor'))]
                        
-        real_label_list = [0 for _ in range(len(real_img_list))]
+        no_tumor_label_list = [0 for _ in range(len(no_tumor_img_list))]
 
-        fake_img_list = [os.path.join(self.root, '1_fake', train_file) for train_file in
-                        os.listdir(os.path.join(self.root, '1_fake'))]
+        glioma_tumor_img_list = [os.path.join(self.root, 'glioma_tumor', train_file) for train_file in
+                        os.listdir(os.path.join(self.root, 'glioma_tumor'))]
 
-        fake_label_list = [1 for _ in range(len(fake_img_list))]
+        glioma_tumor_label_list = [1 for _ in range(len(glioma_tumor_img_list))]
 
+        meningioma_tumor_img_list = [os.path.join(self.root, 'meningioma_tumor', train_file) for train_file in
+                        os.listdir(os.path.join(self.root, 'meningioma_tumor'))]
 
-        self.img = real_img_list+fake_img_list
-        self.label = real_label_list+fake_label_list
+        meningioma_tumor_label_list = [2 for _ in range(len(meningioma_tumor_img_list))]
+
+        pituitary_tumor_img_list = [os.path.join(self.root, 'pituitary_tumor', train_file) for train_file in
+                        os.listdir(os.path.join(self.root, 'pituitary_tumor'))]
+
+        pituitary_tumor_label_list = [3 for _ in range(len(pituitary_tumor_img_list))]
+
+        self.img = no_tumor_img_list + glioma_tumor_img_list + meningioma_tumor_img_list + pituitary_tumor_img_list
+        self.label = no_tumor_label_list + glioma_tumor_label_list + meningioma_tumor_label_list + pituitary_tumor_label_list
         
-        print('directory, realimg, fakeimg:', self.root, len(real_img_list), len(fake_img_list))
+        print('directory, no_tumor, glioma_tumor, meningioma_tumor, pituitary_tumor:', self.root, len(no_tumor_img_list), len(glioma_tumor_img_list), len(meningioma_tumor_img_list), len(pituitary_tumor_img_list))
 
 
     def __getitem__(self, index):

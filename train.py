@@ -80,7 +80,7 @@ if __name__ == '__main__':
         iter_data_time = time.time()
         epoch_iter = 0
 
-        print(f'\nStart epoch {epoc}:')
+        print(f'\nStart epoch {epoch}:')
 
         for i, data in enumerate(data_loader):
             model.total_steps += 1

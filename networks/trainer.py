@@ -143,7 +143,7 @@ class Patch5Model(nn.Module):
         # self.resnet.fc = nn.Linear(2048, 128)
         self.fc1=nn.Linear(2048, 128)
         self.ac=nn.ReLU()
-        self.fc=nn.Linear(128,1)
+        self.fc=nn.Linear(128,4)
         self.fft = FFTLayer()
         self.lbp = BlockLBP(numChannels=3,numWeights=8)
 
@@ -235,7 +235,7 @@ class Trainer(BaseModel):
                 self.model=nn.DataParallel(self.model)
 
         if self.isTrain:
-            self.loss_fn = nn.BCEWithLogitsLoss()
+            self.loss_fn = nn.CrossEntropyLoss()
             # initialize optimizers
             if opt.optim == 'adam':
                 self.optimizer = torch.optim.Adam(self.model.parameters(),
