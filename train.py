@@ -25,15 +25,20 @@ def validate(model, opt):
             # cropped_img = data[1].cuda() #[batch_size, 3, 224, 224]
             # label = data[2].cuda() #[batch_size, 1]
             # scale = data[3].cuda() #[batch_size, 1, 2]
-            cropped_img = data[1] #[batch_size, 3, 224, 224]
-            label = data[2] #[batch_size, 1]
-            scale = data[3] #[batch_size, 1, 2]
+            #cropped_img = data[1] #[batch_size, 3, 224, 224]
+            label = data[1] #[batch_size, 1]
+            #scale = data[3] #[batch_size, 1, 2]
 
-            y_pred.extend(model(input_img, cropped_img, scale).sigmoid().flatten().tolist())
-            y_true.extend(label.flatten().tolist())
+            #y_pred.extend(model(input_img, cropped_img, scale).sigmoid().flatten().tolist())
+            #y_true.extend(label.flatten().tolist())
+
+            outputs = model(input_img)
+            _, predicted = torch.max(outputs, 1)  # 获取预测结果
+            y_pred.extend(predicted.tolist())
+            y_true.extend(label.tolist())
 
     y_true, y_pred = np.array(y_true), np.array(y_pred)
-    acc = accuracy_score(y_true, y_pred > 0.5)
+    acc = accuracy_score(y_true, y_pred )
 
 
     return acc
@@ -43,8 +48,8 @@ def get_val_opt():
     val_opt = TrainOptions().parse(print_options=False)
     val_opt.dataroot = '{}/{}/'.format(val_opt.dataroot, val_opt.val_split)
     val_opt.isTrain = False
-    val_opt.no_resize = False
-    val_opt.no_crop = False
+    #val_opt.no_resize = False
+    #val_opt.no_crop = False
     val_opt.serial_batches = True
     val_opt.jpg_method = ['pil']
     if len(val_opt.blur_sig) == 2:
