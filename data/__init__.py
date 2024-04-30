@@ -35,8 +35,8 @@ def print_label_distribution(dataset, num):
 
 
 def patch_collate_train(batch):
-    input_img=torch.stack([item[0] for item in batch], dim=0)
-    cropped_img=torch.stack([item[1] for item in batch], dim=0)
+    input_img=torch.stack([item[0] for item in batch], dim=0) # [batch_size, 3, 224, 224]
+    cropped_img=torch.stack([item[1] for item in batch], dim=0) # [batch_size, 3, 224, 224]
     target=torch.tensor([item[2] for item in batch])
     scale=torch.stack([item[3] for item in batch], dim=0)
     return [input_img, cropped_img, target, scale]

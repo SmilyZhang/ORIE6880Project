@@ -126,17 +126,22 @@ class read_data():
         if self.opt.isTrain and not self.opt.no_flip:
             img = transforms.RandomHorizontalFlip()(img)
         
+        # For brain tumor classification task, the input images are in different sizes and will raise error in training
+        # so here put transforms.Resize() before the input image so that all images are in cropSize*cropSize
+        img = transforms.Resize(self.opt.cropSize)(img)
+        img = transforms.CenterCrop(self.opt.cropSize)(img)
+
         input_img = copy.deepcopy(img)
         input_img = transforms.ToTensor()(input_img)
         input_img = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(input_img)
 
-        img = transforms.Resize(self.opt.cropSize)(img)
-        img = transforms.CenterCrop(self.opt.cropSize)(img)
+        # img = transforms.Resize(self.opt.cropSize)(img)
+        #img = transforms.CenterCrop(self.opt.cropSize)(img)
         cropped_img = transforms.ToTensor()(img)
         cropped_img = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(cropped_img)
 
 
-        scale = torch.tensor([height, width])
+        scale = torch.tensor([img.height, img.width])
 
         return input_img, cropped_img, target, scale, imgname
 

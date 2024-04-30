@@ -31,7 +31,8 @@ def validate(model, opt):
                 label = data[2].cuda() #[batch_size, 1]
                 scale = data[3].cuda() #[batch_size, 1, 2]
 
-            y_pred.extend(model(input_img, cropped_img, scale).sigmoid().flatten().tolist())
+            logits = model(input_img, cropped_img, scale)
+            y_pred.extend(torch.argmax(logits, dim=1).tolist())
             y_true.extend(label.flatten().tolist())
 
     y_true, y_pred = np.array(y_true), np.array(y_pred)

@@ -27,7 +27,7 @@ def validate(model, data_loader):
             scale = data[3].cuda() #[batch_size, 1, 2]
 
             logits = model(input_img, cropped_img, scale)
-            y_pred.extend(logits.sigmoid().flatten().tolist())
+            y_pred.extend(torch.argmax(logits, dim=1).tolist())
             y_true.extend(label.flatten().tolist())
 
 
