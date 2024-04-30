@@ -132,87 +132,102 @@ class BlockLBP(nn.Module):
 
 class Patch5Model(nn.Module):
     def __init__(self):
+        #super(Patch5Model, self).__init__()
+        #self.resnet = resnet50(pretrained=True) #debug
+        #self.COOI=COOI()
+        #self.mha_list=nn.Sequential(
+        #                SA_layer(128, 4),
+        #                SA_layer(128, 4),
+        #                SA_layer(128, 4)
+        #              )
+        ## self.resnet.fc = nn.Linear(2048, 128)
+        #self.fc1=nn.Linear(2048, 128)
+        #self.ac=nn.ReLU()
+        #self.fc=nn.Linear(128,1)
+        #self.fft = FFTLayer()
+        #self.lbp = BlockLBP(numChannels=3,numWeights=8)
+
+        # ----------------------------------- resnet1
         super(Patch5Model, self).__init__()
-        self.resnet = resnet50(pretrained=True) #debug
-        self.COOI=COOI()
-        self.mha_list=nn.Sequential(
-                        SA_layer(128, 4),
-                        SA_layer(128, 4),
-                        SA_layer(128, 4)
-                      )
-        # self.resnet.fc = nn.Linear(2048, 128)
-        self.fc1=nn.Linear(2048, 128)
-        self.ac=nn.ReLU()
-        self.fc=nn.Linear(128,1)
-        self.fft = FFTLayer()
-        self.lbp = BlockLBP(numChannels=3,numWeights=8)
+        self.resnet = resnet50(pretrained=True)
+        self.fc1 = nn.Linear(2048, 128)
+        self.ac = nn.ReLU()
+        self.fc = nn.Linear(128, 4)
 
-    def forward(self, input_img, cropped_img, scale):
-        
-        x = cropped_img
+    #def forward(self, input_img, cropped_img, scale):
+    #    
+    #    x = cropped_img
+#
+    #    batch_size, p, _, _ =x.shape #[batch_size, 3, 224, 224]
+#
+    #    fm, whole_embedding=self.resnet(x)#fm[batch_size, 2048, 7, 7], whole_embedding:[batch_size, 2048]
+    #    #print(whole_embedding.shape)
+    #    #print(fm.shape)
+    #    s_whole_embedding=self.ac(self.fc1(whole_embedding))#128
+    #    s_whole_embedding=s_whole_embedding.view(-1, 1, 128)
+    #    #print(s_whole_embedding.shape)
+#
+    #    input_loc=self.COOI.get_coordinates(fm.detach(), scale)
+#
+    #    _,proposal_size,_=input_loc.size()
+#
+    #    window_imgs = torch.zeros([batch_size, proposal_size, 3, 224, 224]).to(fm.device)  # [N, 4, 3, 224, 224]
+    #    
+    #    for batch_no in range(batch_size):
+    #        for proposal_no in range(proposal_size):
+    #            t,l,b,r=input_loc[batch_no, proposal_no]
+    #            #print('************************')
+    #            img_patch=input_img[batch_no][:, t:b, l:r]
+    #            #print(img_patch.size())
+    #            _, patch_height, patch_width=img_patch.size()
+    #            if patch_height==224 and patch_width==224:
+    #                window_imgs[batch_no, proposal_no]=img_patch
+    #            else:
+    #                window_imgs[batch_no, proposal_no:proposal_no+1]=F.interpolate(img_patch[None,...], size=(224, 224),
+    #                                                        mode='bilinear',
+    #                                                        align_corners=True)  # [N, 4, 3, 224, 224]
+    #    #print(window_imgs.shape)
+    #    #exit()
+#
+    #    window_imgs = window_imgs.reshape(batch_size * proposal_size, 3, 224, 224)  # [N*4, 3, 224, 224]
+    #    _, window_embeddings=self.resnet(window_imgs.detach()) #[batchsize*self.proposalN, 2048]
+    #    s_window_embedding=self.ac(self.fc1(window_embeddings))#[batchsize*self.proposalN, 128]
+    #    s_window_embedding=s_window_embedding.view(-1, proposal_size, 128)
+    #    # print(s_window_embedding.shape)
+    #    # exit()
+    #    # '''
+    #    # fft and lbp part start
+    #    # '''
+    #    # # fft_img = self.fft(cropped_img)
+    #    # # _, fft_embedding = self.resnet(fft_img)
+    #    # # fft_embedding = self.ac(self.fc1(fft_embedding))
+    #    # # fft_embedding = fft_embedding.view(-1, 1, 128)
+#
+    #    # lbp = self.lbp(cropped_img)
+    #    # _, lbp_embedding = self.resnet(lbp)
+    #    # lbp_embedding = self.ac(self.fc1(lbp_embedding))
+    #    # lbp_embedding = lbp_embedding.view(-1, 1, 128)
+#
+    #    all_embeddings=torch.cat((s_whole_embedding, s_window_embedding), 1)#[1, 1+self.proposalN, 128]
+    #    # '''
+    #    # fft and lbp part end
+    #    # '''
+    #    # all_embeddings=all_embeddings.view(-1, (1+proposal_size), 128)
+    #    #print(all_embeddings.shape)
+    #    all_embeddings=self.mha_list(all_embeddings)
+    #    #print(all_embeddings.shape)
+    #    all_logits=self.fc(all_embeddings[:,-1])
+    #    #exit()
+    #    
+    #    return all_logits
 
-        batch_size, p, _, _ =x.shape #[batch_size, 3, 224, 224]
-
-        fm, whole_embedding=self.resnet(x)#fm[batch_size, 2048, 7, 7], whole_embedding:[batch_size, 2048]
-        #print(whole_embedding.shape)
-        #print(fm.shape)
-        s_whole_embedding=self.ac(self.fc1(whole_embedding))#128
-        s_whole_embedding=s_whole_embedding.view(-1, 1, 128)
-        #print(s_whole_embedding.shape)
-
-        input_loc=self.COOI.get_coordinates(fm.detach(), scale)
-
-        _,proposal_size,_=input_loc.size()
-
-        window_imgs = torch.zeros([batch_size, proposal_size, 3, 224, 224]).to(fm.device)  # [N, 4, 3, 224, 224]
-        
-        for batch_no in range(batch_size):
-            for proposal_no in range(proposal_size):
-                t,l,b,r=input_loc[batch_no, proposal_no]
-                #print('************************')
-                img_patch=input_img[batch_no][:, t:b, l:r]
-                #print(img_patch.size())
-                _, patch_height, patch_width=img_patch.size()
-                if patch_height==224 and patch_width==224:
-                    window_imgs[batch_no, proposal_no]=img_patch
-                else:
-                    window_imgs[batch_no, proposal_no:proposal_no+1]=F.interpolate(img_patch[None,...], size=(224, 224),
-                                                            mode='bilinear',
-                                                            align_corners=True)  # [N, 4, 3, 224, 224]
-        #print(window_imgs.shape)
-        #exit()
-
-        window_imgs = window_imgs.reshape(batch_size * proposal_size, 3, 224, 224)  # [N*4, 3, 224, 224]
-        _, window_embeddings=self.resnet(window_imgs.detach()) #[batchsize*self.proposalN, 2048]
-        s_window_embedding=self.ac(self.fc1(window_embeddings))#[batchsize*self.proposalN, 128]
-        s_window_embedding=s_window_embedding.view(-1, proposal_size, 128)
-        # print(s_window_embedding.shape)
-        # exit()
-        # '''
-        # fft and lbp part start
-        # '''
-        # # fft_img = self.fft(cropped_img)
-        # # _, fft_embedding = self.resnet(fft_img)
-        # # fft_embedding = self.ac(self.fc1(fft_embedding))
-        # # fft_embedding = fft_embedding.view(-1, 1, 128)
-
-        # lbp = self.lbp(cropped_img)
-        # _, lbp_embedding = self.resnet(lbp)
-        # lbp_embedding = self.ac(self.fc1(lbp_embedding))
-        # lbp_embedding = lbp_embedding.view(-1, 1, 128)
-
-        all_embeddings=torch.cat((s_whole_embedding, s_window_embedding), 1)#[1, 1+self.proposalN, 128]
-        # '''
-        # fft and lbp part end
-        # '''
-        # all_embeddings=all_embeddings.view(-1, (1+proposal_size), 128)
-        #print(all_embeddings.shape)
-        all_embeddings=self.mha_list(all_embeddings)
-        #print(all_embeddings.shape)
-        all_logits=self.fc(all_embeddings[:,-1])
-        #exit()
-        
-        return all_logits
+    # -------------------------------- resnet1
+    def forward(self, input_img):
+        _, whole_embedding = self.resnet(input_img)
+        x = self.fc1(whole_embedding)
+        x = self.ac(x)
+        x = self.fc(x)
+        return x
 
 
 class Trainer(BaseModel):
@@ -235,7 +250,8 @@ class Trainer(BaseModel):
                 self.model=nn.DataParallel(self.model)
 
         if self.isTrain:
-            self.loss_fn = nn.BCEWithLogitsLoss()
+            # self.loss_fn = nn.BCEWithLogitsLoss()
+            self.loss_fn = nn.CrossEntropyLoss()
             # initialize optimizers
             if opt.optim == 'adam':
                 self.optimizer = torch.optim.Adam(self.model.parameters(),
@@ -263,20 +279,27 @@ class Trainer(BaseModel):
         return True
 
     def set_input(self, data):
-        self.input_img = data[0] # (batch_size, 6, 3, 224, 224)
-        self.cropped_img = data[1].to(self.device)
-        self.label = data[2].to(self.device).float() #(batch_size)
-        self.scale = data[3].to(self.device).float()
+        #self.input_img = data[0] # (batch_size, 6, 3, 224, 224)
+        #self.cropped_img = data[1].to(self.device)
+        #self.label = data[2].to(self.device).float() #(batch_size)
+        #self.scale = data[3].to(self.device).float()
         #self.imgname = data[4]
+
+        # -------------------------------- resnet1
+        self.input_img = data[0].to(self.device) 
+        self.label = data[1].to(self.device)
+
     def forward(self):
-        self.output = self.model(self.input_img, self.cropped_img, self.scale)
+        # self.output = self.model(self.input_img, self.cropped_img, self.scale)
+        # -------------------------------- resnet1
+        self.output = self.model(self.input_img)
 
     def get_loss(self):
-        return self.loss_fn(self.output.squeeze(1), self.label)
+        return self.loss_fn(self.output, self.label)
 
     def optimize_parameters(self):
         self.forward()
-        self.loss = self.loss_fn(self.output.squeeze(1), self.label)
+        self.loss = self.loss_fn(self.output, self.label)
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()
