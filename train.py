@@ -22,12 +22,14 @@ def validate(model, opt):
         y_true, y_pred = [], []
         for data in data_loader:
             input_img = data[0] #[batch_size, 3, height, width]
-            # cropped_img = data[1].cuda() #[batch_size, 3, 224, 224]
-            # label = data[2].cuda() #[batch_size, 1]
-            # scale = data[3].cuda() #[batch_size, 1, 2]
             cropped_img = data[1] #[batch_size, 3, 224, 224]
             label = data[2] #[batch_size, 1]
             scale = data[3] #[batch_size, 1, 2]
+            if len(opt.gpu_ids) > 0:
+                input_img = data[0].cuda() #[batch_size, 3, height, width]
+                cropped_img = data[1].cuda() #[batch_size, 3, 224, 224]
+                label = data[2].cuda() #[batch_size, 1]
+                scale = data[3].cuda() #[batch_size, 1, 2]
 
             y_pred.extend(model(input_img, cropped_img, scale).sigmoid().flatten().tolist())
             y_true.extend(label.flatten().tolist())
@@ -78,6 +80,7 @@ if __name__ == '__main__':
         iter_data_time = time.time()
         epoch_iter = 0
 
+        print(f'\nStart epoch {epoc}:')
 
         for i, data in enumerate(data_loader):
             model.total_steps += 1
@@ -102,7 +105,7 @@ if __name__ == '__main__':
                   (epoch, model.total_steps))
             #model.save_networks('latest')
         model.save_networks(epoch)
-        epoch = 3125
+
         # Validation
         model.eval()
         acc = validate(model.model, val_opt)

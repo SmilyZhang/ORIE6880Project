@@ -43,8 +43,8 @@ def validate(model, data_loader):
 if __name__ == '__main__':
     opt = TestOptions().parse(print_options=False)
     model_name = os.path.basename(model_path).replace('.pth', '')
-    rows = [["{} model testing on...".format(model_name)],
-        ['testmodel', 'oa', 'auc', 'ap']]
+    # rows = [["{} model testing on...".format(model_name)],
+    #    ['testmodel', 'oa', 'auc', 'ap']]
 
     model = Patch5Model()
     state_dict = torch.load(model_path, map_location='cpu')
@@ -60,17 +60,17 @@ if __name__ == '__main__':
     model.cuda()
     model.eval()
        
-    for v_id, val in enumerate(vals):
-        print("testing {}-generated images".format(val))
-        opt.dataroot = '{}/{}'.format(dataroot, val)
-        opt.no_resize = True    # testing without resizing by default
-        data_loader = create_dataloader_test(opt)        
-        oa, roc_auc, ap = validate(model, data_loader)
-        rows.append([val, oa, roc_auc, ap])
-        print("oa: {}; auc: {}; ap:{}".format(oa, roc_auc, ap))
 
-        
-    csv_name = results_dir + '/{}.csv'.format(model_name)
-    with open(csv_name, 'a') as f:
-        csv_writer = csv.writer(f, delimiter=',')
-        csv_writer.writerows(rows)
+    print("Testing images")
+    # opt.dataroot = '{}/{}'.format(dataroot, val)
+    opt.no_resize = True    # testing without resizing by default
+    data_loader = create_dataloader_test(opt)        
+    oa, roc_auc, ap = validate(model, data_loader)
+    # rows.append([val, oa, roc_auc, ap])
+    print("oa: {}; auc: {}; ap:{}".format(oa, roc_auc, ap))
+
+    # Save result for each generative model, no longer used in Brain Tumor task    
+    # csv_name = results_dir + '/{}.csv'.format(model_name)
+    # with open(csv_name, 'a') as f:
+    #     csv_writer = csv.writer(f, delimiter=',')
+    #    csv_writer.writerows(rows)
