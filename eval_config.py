@@ -2,11 +2,8 @@
 results_dir = 'result'
 
 # root to the testsets
-dataroot = "../dataset-small/"
-
-# list of synthesis algorithms
-vals = ['progan', 'stylegan', 'biggan', 'cyclegan', 'stargan', 'gaugan', 'stylegan2', 'stylegan3_FFHQ...']
+dataroot = "brain_tumor_data/Testing"
 
 # testing model path
-model_path = 'checkpoints/first_try3/model_epoch_best.pth'
+model_path = 'checkpoints/experiment_1/model_epoch_best.pth'
 

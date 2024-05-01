@@ -30,14 +30,16 @@ def validate(model, data_loader):
             y_pred.extend(torch.argmax(logits, dim=1).tolist())
             y_true.extend(label.flatten().tolist())
 
-
+    print(y_true)
+    print(y_pred)
+    print()
     y_true, y_pred = np.array(y_true), np.array(y_pred)
-    oa = accuracy_score(y_true, y_pred > 0.5)
+    oa = accuracy_score(y_true, y_pred)
 
-    fpr, tpr, _ = roc_curve(y_true, y_pred)
-    roc_auc = auc(fpr, tpr)
-    ap = average_precision_score(y_true, y_pred)
-    return oa, roc_auc, ap
+    # fpr, tpr, _ = roc_curve(y_true, y_pred)
+    # roc_auc = auc(fpr, tpr)
+    # ap = average_precision_score(y_true, y_pred)
+    return oa
 
 
 if __name__ == '__main__':
@@ -65,9 +67,9 @@ if __name__ == '__main__':
     # opt.dataroot = '{}/{}'.format(dataroot, val)
     opt.no_resize = True    # testing without resizing by default
     data_loader = create_dataloader_test(opt)        
-    oa, roc_auc, ap = validate(model, data_loader)
+    oa = validate(model, data_loader)
     # rows.append([val, oa, roc_auc, ap])
-    print("oa: {}; auc: {}; ap:{}".format(oa, roc_auc, ap))
+    print("accuracy: {}".format(oa))
 
     # Save result for each generative model, no longer used in Brain Tumor task    
     # csv_name = results_dir + '/{}.csv'.format(model_name)

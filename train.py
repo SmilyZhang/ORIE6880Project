@@ -36,7 +36,7 @@ def validate(model, opt):
             y_true.extend(label.flatten().tolist())
 
     y_true, y_pred = np.array(y_true), np.array(y_pred)
-    acc = accuracy_score(y_true, y_pred > 0.5)
+    acc = accuracy_score(y_true, y_pred)
 
 
     return acc
