@@ -144,7 +144,7 @@ class Patch5Model(nn.Module):
 
         fm, whole_embedding=self.resnet(x)#fm[batch_size, 2048, 7, 7], whole_embedding:[batch_size, 2048]
         
-        all_logits=self.fc(whole_embedding)
+        all_logits=self.fc(self.ac(self.fc1(whole_embedding)))
         
         return all_logits
 
