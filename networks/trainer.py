@@ -169,9 +169,9 @@ class Patch5Model(nn.Module):
         for batch_no in range(batch_size):
             for proposal_no in range(proposal_size):
                 t,l,b,r=input_loc[batch_no, proposal_no]
-                print('************************')
+                # print('************************')
                 img_patch=input_img[batch_no][:, t:b, l:r]
-                print(img_patch.size())
+                # print(img_patch.size())
                 _, patch_height, patch_width=img_patch.size()
                 if patch_height==224 and patch_width==224:
                     window_imgs[batch_no, proposal_no]=img_patch
