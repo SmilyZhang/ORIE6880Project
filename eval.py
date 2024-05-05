@@ -5,12 +5,13 @@ from networks.trainer import Patch5Model
 from networks.resnet import resnet50
 from options.test_options import TestOptions
 from eval_config import *
-from sklearn.metrics import average_precision_score, precision_recall_curve, accuracy_score, roc_curve, auc
+from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, confusion_matrix, classification_report
 import sys
 sys.path.append('./data')
 from data import create_dataloader_test
 import numpy as np
 from PIL import ImageFile
+import matplotlib.pyplot as plt
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
  
@@ -35,11 +36,13 @@ def validate(model, data_loader):
     print()
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     oa = accuracy_score(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred)
+    report = classification_report(y_true, y_pred)
 
     # fpr, tpr, _ = roc_curve(y_true, y_pred)
     # roc_auc = auc(fpr, tpr)
     # ap = average_precision_score(y_true, y_pred)
-    return oa
+    return oa, cm, report
 
 
 if __name__ == '__main__':
@@ -67,9 +70,16 @@ if __name__ == '__main__':
     # opt.dataroot = '{}/{}'.format(dataroot, val)
     opt.no_resize = True    # testing without resizing by default
     data_loader = create_dataloader_test(opt)        
-    oa = validate(model, data_loader)
+    oa = validate(model, data_loader)[0]
+    cm = validate(model, data_loader)[1]
+    report = validate(model, data_loader)[2]
     # rows.append([val, oa, roc_auc, ap])
     print("accuracy: {}".format(oa))
+    labels = ['no_tumor', 'glioma_tumor', 'meningioma_tumor', 'pituitary_tumor']
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+    disp.plot(cmap=plt.cm.Blues)
+    plt.title("Confusion Matrix")
+    plt.show()
 
     # Save result for each generative model, no longer used in Brain Tumor task    
     # csv_name = results_dir + '/{}.csv'.format(model_name)
